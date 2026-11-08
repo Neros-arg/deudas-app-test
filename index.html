@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#0b111b">
+
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent"
+  >
+
+  <meta
+    name="apple-mobile-web-app-title"
+    content="Mis Finanzas"
+  >
+
+  <title>Mis Finanzas</title>
+
+  <link rel="manifest" href="manifest.json">
+
+  <link
+    rel="apple-touch-icon"
+    href="icon.png"
+  >
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div class="app">
+
+    <!-- HEADER -->
+    <header class="topbar">
+
+      <div>
+        <div class="eyebrow">CONTROL PERSONAL</div>
+        <h1>Mis Finanzas</h1>
+      </div>
+
+      <button
+        class="icon-btn"
+        id="addBtn"
+        aria-label="Agregar servicio"
+      >
+        +
+      </button>
+
+    </header>
+
+
+    <!-- CONTENIDO -->
+    <main class="content">
+
+      <!-- SELECTOR DE MES -->
+      <section class="month-selector">
+
+        <button id="prevMonth" class="month-arrow">
+          ‹
+        </button>
+
+        <div class="month-center">
+          <span id="monthLabel">Septiembre 2026</span>
+        </div>
+
+        <button id="nextMonth" class="month-arrow">
+          ›
+        </button>
+
+      </section>
+
+
+      <!-- RESUMEN -->
+      <section class="summary-grid">
+
+        <div class="summary-card warning">
+          <span class="summary-number" id="pendingCount">0</span>
+          <span class="summary-label">Por vencer</span>
+        </div>
+
+        <div class="summary-card success">
+          <span class="summary-number" id="paidCount">0</span>
+          <span class="summary-label">Pagados</span>
+        </div>
+
+        <div class="summary-card danger">
+          <span class="summary-number" id="overdueCount">0</span>
+          <span class="summary-label">Vencidos</span>
+        </div>
+
+      </section>
+
+
+      <!-- TOTAL PENDIENTE -->
+      <section class="total-card">
+
+        <div>
+          <span class="total-label">Total pendiente</span>
+          <strong id="totalPending">$0</strong>
+        </div>
+
+        <div class="total-icon">
+          $
+        </div>
+
+      </section>
+
+
+      <!-- RESUMEN FINANCIERO -->
+      <section class="finance-overview">
+        <div class="section-header">
+          <div>
+            <span class="section-kicker">TU ECONOMÍA</span>
+            <h2>Balance del mes</h2>
+          </div>
+          <button id="addMovementBtn" class="text-btn">+ Movimiento</button>
+        </div>
+
+        <div class="finance-grid">
+          <div class="finance-card">
+            <span>Ingresos</span>
+            <strong id="monthIncome">$0</strong>
+          </div>
+          <div class="finance-card">
+            <span>Gastos</span>
+            <strong id="monthExpenses">$0</strong>
+          </div>
+          <div class="finance-card wide">
+            <span>Disponible estimado</span>
+            <strong id="monthAvailable">$0</strong>
+          </div>
+        </div>
+
+        <div class="recommendation-card" id="recommendationCard">
+          <div class="recommendation-heading">✦ Sugerencia</div>
+          <p id="recommendationText">Cargá tus ingresos y gastos para recibir sugerencias.</p>
+        </div>
+      </section>
+
+      <!-- LISTA -->
+      <section class="services-section" id="servicesSection">
+
+        <div class="section-header">
+
+          <div>
+            <span class="section-kicker">ESTE MES</span>
+            <h2>Servicios</h2>
+          </div>
+
+          <button id="showAllBtn" class="text-btn">
+            Ver todos
+          </button>
+
+        </div>
+
+        <div id="serviceList" class="service-list"></div>
+
+      </section>
+
+      <!-- MOVIMIENTOS -->
+      <section class="transactions-section" id="transactionsSection" hidden>
+        <div class="section-header">
+          <div>
+            <span class="section-kicker">REGISTRO PERSONAL</span>
+            <h2>Ingresos y gastos</h2>
+          </div>
+          <button id="addMovementBtnSecondary" class="text-btn">+ Agregar</button>
+        </div>
+        <div class="movement-filters">
+          <button class="movement-filter active" data-filter="all">Todos</button>
+          <button class="movement-filter" data-filter="income">Ingresos</button>
+          <button class="movement-filter" data-filter="expense">Gastos</button>
+        </div>
+        <div id="transactionList" class="transaction-list"></div>
+      </section>
+
+    </main>
+
+
+    <!-- NAVEGACIÓN -->
+    <nav class="bottom-nav">
+
+      <button
+        class="nav-item active"
+        data-nav="home"
+      >
+        <span class="nav-icon">⌂</span>
+        <span>Resumen</span>
+      </button>
+
+      <button
+        class="nav-item"
+        data-nav="services"
+      >
+        <span class="nav-icon">▣</span>
+        <span>Vencimientos</span>
+      </button>
+
+      <button
+        class="nav-item"
+        data-nav="movements"
+      >
+        <span class="nav-icon">↕</span>
+        <span>Movimientos</span>
+      </button>
+
+      <button
+        class="nav-item"
+        data-nav="history"
+      >
+        <span class="nav-icon">↺</span>
+        <span>Historial</span>
+      </button>
+
+    </nav>
+
+  </div>
+
+
+  <!-- ========================= -->
+  <!-- MODAL AGREGAR / EDITAR -->
+  <!-- ========================= -->
+
+  <div
+    class="modal-backdrop"
+    id="formBackdrop"
+  >
+
+    <div class="modal">
+
+      <div class="modal-header">
+
+        <div>
+          <span class="modal-kicker">GESTIONAR</span>
+          <h2 id="formTitle">Nuevo servicio</h2>
+        </div>
+
+        <button
+          class="close-btn"
+          id="closeForm"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <form id="serviceForm">
+
+        <input
+          type="hidden"
+          id="serviceId"
+        >
+
+
+        <label>
+          Nombre del servicio
+
+          <input
+            type="text"
+            id="serviceName"
+            placeholder="Ej: Internet"
+            required
+          >
+
+        </label>
+
+
+        <label>
+          Proveedor
+
+          <input
+            type="text"
+            id="serviceProvider"
+            placeholder="Ej: Personal"
+          >
+
+        </label>
+
+
+        <label>
+          Importe
+
+          <div class="input-money">
+
+            <span>$</span>
+
+            <input
+              type="number"
+              id="serviceAmount"
+              placeholder="0"
+              min="0"
+              step="1"
+              required
+            >
+
+          </div>
+
+        </label>
+
+
+        <label>
+          Fecha de vencimiento
+
+          <input
+            type="date"
+            id="serviceDueDate"
+            required
+          >
+
+        </label>
+
+
+        <label>
+          Repetición
+
+          <select id="serviceRepeat">
+
+            <option value="once">
+              Una sola vez
+            </option>
+
+            <option value="monthly">
+              Todos los meses
+            </option>
+
+            <option value="2months">
+              Cada 2 meses
+            </option>
+
+            <option value="quarterly">
+              Cada 3 meses
+            </option>
+
+            <option value="yearly">
+              Todos los años
+            </option>
+
+          </select>
+
+        </label>
+
+
+        <label>
+          Observaciones
+
+          <textarea
+            id="serviceNotes"
+            placeholder="Agregá cualquier dato que quieras recordar..."
+            rows="4"
+          ></textarea>
+
+        </label>
+
+
+        <button
+          class="primary-btn"
+          type="submit"
+        >
+          Guardar servicio
+        </button>
+
+      </form>
+
+    </div>
+
+  </div>
+
+
+  <!-- ========================= -->
+  <!-- MODAL DETALLE -->
+  <!-- ========================= -->
+
+  <div
+    class="modal-backdrop"
+    id="detailBackdrop"
+  >
+
+    <div class="modal detail-modal">
+
+      <div class="modal-header">
+
+        <div class="detail-title-wrap">
+
+          <div
+            class="detail-service-icon"
+            id="detailIcon"
+          >
+            $
+          </div>
+
+          <div>
+            <span class="modal-kicker">DETALLE</span>
+            <h2 id="detailName">Servicio</h2>
+          </div>
+
+        </div>
+
+        <button
+          class="close-btn"
+          id="closeDetail"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <div class="detail-provider" id="detailProvider">
+        Proveedor
+      </div>
+
+
+      <div class="detail-amount">
+        <span>Importe</span>
+        <strong id="detailAmount">$0</strong>
+      </div>
+
+
+      <div class="detail-status" id="detailStatus">
+        Vence en 5 días
+      </div>
+
+
+      <div class="detail-grid">
+
+        <div class="detail-item">
+
+          <span>Vencimiento</span>
+
+          <strong id="detailDate">
+            -
+          </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+          <span>Repetición</span>
+
+          <strong id="detailRepeat">
+            -
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div class="notes-box">
+
+        <div class="notes-title">
+          Observaciones
+        </div>
+
+        <div
+          class="notes-text"
+          id="detailNotes"
+        >
+          Sin observaciones.
+        </div>
+
+      </div>
+
+
+      <div class="detail-actions">
+
+        <button
+          class="primary-btn"
+          id="detailPayBtn"
+        >
+          ✓ Marcar como pagado
+        </button>
+
+        <button
+          class="secondary-btn"
+          id="detailEditBtn"
+        >
+          ✏ Editar servicio
+        </button>
+
+        <button
+          class="danger-btn"
+          id="detailDeleteBtn"
+        >
+          🗑 Eliminar servicio
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ========================= -->
+  <!-- MODAL HISTORIAL -->
+  <!-- ========================= -->
+
+  <div
+    class="modal-backdrop"
+    id="historyBackdrop"
+  >
+
+    <div class="modal history-modal">
+
+      <div class="modal-header">
+
+        <div>
+          <span class="modal-kicker">REGISTRO</span>
+          <h2>Historial de pagos</h2>
+        </div>
+
+        <button
+          class="close-btn"
+          id="closeHistory"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <div id="historyList" class="history-list"></div>
+
+    </div>
+
+  </div>
+
+
+  <!-- MODAL INGRESO / GASTO -->
+  <div class="modal-backdrop" id="movementBackdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <span class="modal-kicker">FINANZAS PERSONALES</span>
+          <h2 id="movementTitle">Nuevo movimiento</h2>
+        </div>
+        <button class="close-btn" id="closeMovement">×</button>
+      </div>
+
+      <form id="movementForm">
+        <label>
+          Tipo de movimiento
+          <select id="movementType" required>
+            <option value="income">Ingreso</option>
+            <option value="expense">Gasto</option>
+          </select>
+        </label>
+
+        <label>
+          Importe
+          <div class="input-money">
+            <span>$</span>
+            <input type="number" id="movementAmount" min="1" step="0.01" placeholder="0" required>
+          </div>
+        </label>
+
+        <label>
+          Fecha
+          <input type="date" id="movementDate" required>
+        </label>
+
+        <label>
+          Categoría
+          <select id="movementCategory" required>
+            <option value="Sueldo">Sueldo</option>
+            <option value="Ventas">Ventas</option>
+            <option value="Trabajo independiente">Trabajo independiente</option>
+            <option value="Negocio">Negocio</option>
+            <option value="Alimentación">Alimentación</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Hogar">Hogar</option>
+            <option value="Salud">Salud</option>
+            <option value="Compras">Compras</option>
+            <option value="Entretenimiento">Entretenimiento</option>
+            <option value="Otros">Otros</option>
+          </select>
+        </label>
+
+        <label>
+          Descripción
+          <input type="text" id="movementDescription" placeholder="Ej: Venta de una bicicleta, sueldo...">
+        </label>
+
+        <label>
+          Medio de cobro / pago
+          <select id="movementMethod">
+            <option value="Efectivo">Efectivo</option>
+            <option value="Transferencia">Transferencia</option>
+            <option value="Débito">Débito</option>
+            <option value="Crédito">Crédito</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </label>
+
+        <button class="primary-btn" type="submit">Guardar movimiento</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div
+    class="toast"
+    id="toast"
+  ></div>
+
+
+  <script src="app.js"></script>
+
+</body>
+</html>
